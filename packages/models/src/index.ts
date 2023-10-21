@@ -58,6 +58,7 @@ import type {
 	ITeamMemberModel,
 	ITeamModel,
 	IUploadsModel,
+	IPendingUsersModel,
 	IUserDataFilesModel,
 	IUsersSessionsModel,
 	IUsersModel,
@@ -154,6 +155,7 @@ export const Statistics = proxify<IStatisticsModel>('IStatisticsModel');
 export const Subscriptions = proxify<ISubscriptionsModel>('ISubscriptionsModel');
 export const TeamMember = proxify<ITeamMemberModel>('ITeamMemberModel');
 export const Team = proxify<ITeamModel>('ITeamModel');
+export const PendingUsers = proxify<IPendingUsersModel>('IPendingUsersModel');
 export const Users = proxify<IUsersModel>('IUsersModel');
 export const Uploads = proxify<IUploadsModel>('IUploadsModel');
 export const UserDataFiles = proxify<IUserDataFilesModel>('IUserDataFilesModel');

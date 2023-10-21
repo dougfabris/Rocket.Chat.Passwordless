@@ -33,6 +33,7 @@ export * from './IPushToken';
 export * from './IPushNotificationConfig';
 export * from './SlashCommands';
 
+export * from './IPendingUser';
 export * from './IUserDataFile';
 export * from './IUserSession';
 export * from './IUserStatus';
