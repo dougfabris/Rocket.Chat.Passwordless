@@ -43,6 +43,7 @@ export * from './models/IOAuthAccessTokensModel';
 export * from './models/IOAuthRefreshTokensModel';
 export * from './models/IOEmbedCacheModel';
 export * from './models/IPbxEventsModel';
+export * from './models/IPendingUsersModel';
 export * from './models/IPushTokenModel';
 export * from './models/IPermissionsModel';
 export * from './models/IReadReceiptsModel';

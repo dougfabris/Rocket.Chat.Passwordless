@@ -6,6 +6,7 @@ import type {
 	IUser,
 	IPersonalAccessToken,
 	UserStatus,
+	IPendingUser,
 } from '@rocket.chat/core-typings';
 import Ajv from 'ajv';
 
@@ -15,6 +16,7 @@ import type { UserCreateParamsPOST } from './users/UserCreateParamsPOST';
 import type { UserDeactivateIdleParamsPOST } from './users/UserDeactivateIdleParamsPOST';
 import type { UserLogoutParamsPOST } from './users/UserLogoutParamsPOST';
 import type { UserRegisterParamsPOST } from './users/UserRegisterParamsPOST';
+import type { UserRegisterPasswordlessDevParamsPOST } from './users/UserRegisterPasswordlessDevParamsPOST';
 import type { UserSetActiveStatusParamsPOST } from './users/UserSetActiveStatusParamsPOST';
 import type { UsersAutocompleteParamsGET } from './users/UsersAutocompleteParamsGET';
 import type { UsersInfoParamsGet } from './users/UsersInfoParamsGet';
@@ -338,6 +340,12 @@ export type UsersEndpoints = {
 		};
 	};
 
+	'/v1/users.registerPasswordless': {
+		POST: (params: UserRegisterPasswordlessDevParamsPOST) => {
+			user: Partial<IPendingUser>;
+		};
+	};
+
 	'/v1/users.logout': {
 		POST: (params: UserLogoutParamsPOST) => {
 			message: string;
@@ -374,6 +382,7 @@ export * from './users/UserSetActiveStatusParamsPOST';
 export * from './users/UserDeactivateIdleParamsPOST';
 export * from './users/UsersInfoParamsGet';
 export * from './users/UserRegisterParamsPOST';
+export * from './users/UserRegisterPasswordlessDevParamsPOST';
 export * from './users/UserLogoutParamsPOST';
 export * from './users/UsersListTeamsParamsGET';
 export * from './users/UsersAutocompleteParamsGET';

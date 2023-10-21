@@ -42,6 +42,7 @@ import './OAuthAccessTokens';
 import './OAuthRefreshTokens';
 import './OEmbedCache';
 import './PbxEvents';
+import './PendingUsers';
 import './PushToken';
 import './Permissions';
 import './MessageReads';
