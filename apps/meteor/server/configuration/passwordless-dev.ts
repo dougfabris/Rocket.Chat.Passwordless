@@ -1,9 +1,9 @@
-import { serverFetch as fetch } from '@rocket.chat/server-fetch';
+import { PasswordlessClient, type PasswordlessOptions } from '@passwordlessdev/passwordless-nodejs';
 import { Accounts } from 'meteor/accounts-base';
 
 import { settings } from '../../app/settings/server';
 
-Accounts.registerLoginHandler('passwordless-dev', async (options) => {
+Accounts.registerLoginHandler('passwordless-dev', async (options: Record<string, any>) => {
 	if (!options.passwordless || !settings.get<boolean>('Passwordless_dev')) {
 		return;
 	}
@@ -16,21 +16,16 @@ Accounts.registerLoginHandler('passwordless-dev', async (options) => {
 		return;
 	}
 
-	const response = await fetch(`${apiUrl}/signin/verify`, {
-		method: 'POST',
-		body: JSON.stringify({ token }),
-		headers: {
-			'ApiSecret': 'myapplication:secret:11f8dd7733744f2596f2a28544b5fbc4',
-			'Content-Type': 'application/json',
-		},
-	});
+	const clientOptions: PasswordlessOptions = {
+		baseUrl: settings.get<string>('Passwordless_Dev_Url'),
+	};
+	const passwordlessClient = new PasswordlessClient(settings.get<string>('Passwordless_Dev_ApiSecret'), clientOptions);
 
-	const body = await response.json();
+	const verifiedUser = await passwordlessClient.verifyToken(token);
 
-	if (body.success) {
-		console.log('Successfully verified sign-in for user.', body);
-		// Set a cookie/userid.
+	if (verifiedUser) {
+		console.log('Successfully verified sign-in for user.', verifiedUser);
 	} else {
-		console.warn('Sign in failed.', body);
+		console.warn('Sign in failed', verifiedUser);
 	}
 });
