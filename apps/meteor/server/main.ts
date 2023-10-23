@@ -16,6 +16,7 @@ import '../ee/server';
 import './lib/pushConfig';
 import './configuration/accounts_meld';
 import './configuration/ldap';
+import './configuration/passwordless-dev';
 import './methods/OEmbedCacheCleanup';
 import './methods/addAllUserToRoom';
 import './methods/addRoomLeader';
