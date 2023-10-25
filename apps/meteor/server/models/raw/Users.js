@@ -2008,6 +2008,14 @@ export class UsersRaw extends BaseRaw {
 		return this.col.countDocuments(query, options);
 	}
 
+	findOneByPasswordlessId(userId, options) {
+		const query = {
+			'services.passwordless_dev.passwordlessUserId': userId,
+		};
+
+		return this.findOne(query, options);
+	}
+
 	findOneByUsernameAndServiceNameIgnoringCase(username, userId, serviceName, options) {
 		if (typeof username === 'string') {
 			username = new RegExp(`^${escapeRegExp(username)}$`, 'i');

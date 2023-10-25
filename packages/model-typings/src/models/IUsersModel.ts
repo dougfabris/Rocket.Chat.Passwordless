@@ -8,6 +8,7 @@ import type {
 	IPersonalAccessToken,
 	AtLeast,
 	ILivechatAgentStatus,
+	IPendingUser,
 } from '@rocket.chat/core-typings';
 import type { Document, UpdateResult, FindCursor, FindOptions, Filter, InsertOneResult, DeleteResult } from 'mongodb';
 
@@ -387,4 +388,5 @@ export interface IUsersModel extends IBaseModel<IUser> {
 		options: FindOptions<IUser>,
 	): Promise<{ sortedResults: (T & { departments: string[] })[]; totalCount: { total: number }[] }[]>;
 	countByRole(roleName: string): Promise<number>;
+	findOneByPasswordlessId(userId: IPendingUser['_id'], options?: FindOptions<IUser>): Promise<IUser | null>;
 }
