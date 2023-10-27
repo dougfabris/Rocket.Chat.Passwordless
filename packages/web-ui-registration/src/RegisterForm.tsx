@@ -1,4 +1,5 @@
 /* eslint-disable complexity */
+import * as Passwordless from '@passwordlessdev/passwordless-client';
 import {
 	FieldGroup,
 	TextInput,
@@ -6,7 +7,6 @@ import {
 	FieldLabel,
 	FieldRow,
 	FieldError,
-	PasswordInput,
 	ButtonGroup,
 	Button,
 	TextAreaInput,
@@ -14,9 +14,8 @@ import {
 } from '@rocket.chat/fuselage';
 import { useUniqueId } from '@rocket.chat/fuselage-hooks';
 import { Form, ActionLink } from '@rocket.chat/layout';
-import { CustomFieldsForm, PasswordVerifier, useValidatePassword } from '@rocket.chat/ui-client';
-import { useAccountsCustomFields, useSetting, useToastMessageDispatch } from '@rocket.chat/ui-contexts';
-import type { ReactElement } from 'react';
+import { CustomFieldsForm } from '@rocket.chat/ui-client';
+import { useAccountsCustomFields, useEndpoint, useSetting, useToastMessageDispatch } from '@rocket.chat/ui-contexts';
 import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Trans, useTranslation } from 'react-i18next';
@@ -34,46 +33,35 @@ type LoginRegisterPayload = {
 	reason: string;
 };
 
-export const RegisterForm = ({ setLoginRoute }: { setLoginRoute: DispatchLoginRouter }): ReactElement => {
+export const RegisterForm = ({ setLoginRoute }: { setLoginRoute: DispatchLoginRouter }) => {
 	const { t } = useTranslation();
 
 	const requireNameForRegister = Boolean(useSetting('Accounts_RequireNameForSignUp'));
-	const requiresPasswordConfirmation = useSetting('Accounts_RequirePasswordConfirmation');
 	const manuallyApproveNewUsersRequired = useSetting('Accounts_ManuallyApproveNewUsers');
-
 	const usernameOrEmailPlaceholder = String(useSetting('Accounts_EmailOrUsernamePlaceholder'));
-	const passwordPlaceholder = String(useSetting('Accounts_PasswordPlaceholder'));
-	const passwordConfirmationPlaceholder = String(useSetting('Accounts_ConfirmPasswordPlaceholder'));
 
 	const formLabelId = useUniqueId();
-	const passwordVerifierId = useUniqueId();
 	const nameId = useUniqueId();
 	const emailId = useUniqueId();
 	const usernameId = useUniqueId();
-	const passwordId = useUniqueId();
-	const passwordConfirmationId = useUniqueId();
 	const reasonId = useUniqueId();
 
 	const registerUser = useRegisterMethod();
 	const customFields = useAccountsCustomFields();
 
-	const [serverError, setServerError] = useState<string | undefined>(undefined);
+	const [serverError] = useState<string | undefined>(undefined);
 
 	const dispatchToastMessage = useToastMessageDispatch();
 
 	const {
 		register,
 		handleSubmit,
-		setError,
-		watch,
+		// setError,
 		getValues,
 		clearErrors,
 		control,
 		formState: { errors },
 	} = useForm<LoginRegisterPayload>({ mode: 'onBlur' });
-
-	const { password } = watch();
-	const passwordIsValid = useValidatePassword(password);
 
 	const registerFormRef = useRef<HTMLElement>(null);
 
@@ -83,38 +71,63 @@ export const RegisterForm = ({ setLoginRoute }: { setLoginRoute: DispatchLoginRo
 		}
 	}, []);
 
-	const handleRegister = async ({ password, passwordConfirmation: _, ...formData }: LoginRegisterPayload) => {
-		registerUser.mutate(
-			{ pass: password, ...formData },
-			{
-				onError: (error: any) => {
-					if ([error.error, error.errorType].includes('error-invalid-email')) {
-						setError('email', { type: 'invalid-email', message: t('registration.component.form.invalidEmail') });
-					}
-					if (error.errorType === 'error-user-already-exists') {
-						setError('username', { type: 'user-already-exists', message: t('registration.component.form.usernameAlreadyExists') });
-					}
+	const getRegistration = useEndpoint('POST', '/v1/users.registerPasswordless');
 
-					if (/Email already exists/.test(error.error)) {
-						setError('email', { type: 'email-already-exists', message: t('registration.component.form.emailAlreadyExists') });
-					}
+	const passwordlessApiUrl = useSetting<string>('Passwordless_Dev_Url');
+	const passwordlessApiKey = useSetting<string>('Passwordless_Dev_ApiKey');
 
-					if (/Username is already in use/.test(error.error)) {
-						setError('username', { type: 'username-already-exists', message: t('registration.component.form.userAlreadyExist') });
-					}
-					if (/error-too-many-requests/.test(error.error)) {
-						dispatchToastMessage({ type: 'error', message: error.error });
-					}
-					if (/error-user-is-not-activated/.test(error.error)) {
-						dispatchToastMessage({ type: 'info', message: t('registration.page.registration.waitActivationWarning') });
-						setLoginRoute('login');
-					}
-					if (error.error === 'error-user-registration-custom-field') {
-						setServerError(error.message);
-					}
-				},
-			},
-		);
+	const handleRegister = async ({ username, name, email }: LoginRegisterPayload) => {
+		const {
+			user: { token },
+		} = await getRegistration({ username, name, email });
+
+		if (token && passwordlessApiKey) {
+			const p = new Passwordless.Client({
+				apiKey: passwordlessApiKey,
+				apiUrl: passwordlessApiUrl,
+			});
+
+			try {
+				await p.register(token, username);
+				dispatchToastMessage({ type: 'success', message: 'User created successfully' });
+				setLoginRoute('passwordless');
+			} catch (error) {
+				dispatchToastMessage({ type: 'error', message: error });
+			}
+		}
+
+		// 	registerUser.mutate(
+		// 		{ pass: password, ...formData },
+		// 		{
+		// 			onError: (error: any) => {
+		// 				if ([error.error, error.errorType].includes('error-invalid-email')) {
+		// 					setError('email', { type: 'invalid-email', message: t('registration.component.form.invalidEmail') });
+		// 				}
+		// 				if (error.errorType === 'error-user-already-exists') {
+		// 					setError('username', { type: 'user-already-exists', message: t('registration.component.form.usernameAlreadyExists') });
+		// 				}
+
+		// 				if (/Email already exists/.test(error.error)) {
+		// 					setError('email', { type: 'email-already-exists', message: t('registration.component.form.emailAlreadyExists') });
+		// 				}
+
+		// 				if (/Username is already in use/.test(error.error)) {
+		// 					setError('username', { type: 'username-already-exists', message: t('registration.component.form.userAlreadyExist') });
+		// 				}
+		// 				if (/error-too-many-requests/.test(error.error)) {
+		// 					dispatchToastMessage({ type: 'error', message: error.error });
+		// 				}
+		// 				if (/error-user-is-not-activated/.test(error.error)) {
+		// 					dispatchToastMessage({ type: 'info', message: t('registration.page.registration.waitActivationWarning') });
+		// 					setLoginRoute('login');
+		// 				}
+		// 				if (error.error === 'error-user-registration-custom-field') {
+		// 					setServerError(error.message);
+		// 				}
+		// 			},
+		// 		},
+		// 	);
+		// };
 	};
 
 	if (errors.email?.type === 'invalid-email') {
@@ -207,59 +220,6 @@ export const RegisterForm = ({ setLoginRoute }: { setLoginRoute: DispatchLoginRo
 							</FieldError>
 						)}
 					</Field>
-					<Field>
-						<FieldLabel required htmlFor={passwordId}>
-							{t('registration.component.form.password')}
-						</FieldLabel>
-						<FieldRow>
-							<PasswordInput
-								{...register('password', {
-									required: t('registration.component.form.requiredField'),
-									validate: () => (!passwordIsValid ? t('Password_must_meet_the_complexity_requirements') : true),
-								})}
-								error={errors.password?.message}
-								aria-required='true'
-								aria-invalid={errors.password ? 'true' : undefined}
-								id={passwordId}
-								placeholder={passwordPlaceholder || t('Create_a_password')}
-								aria-describedby={`${passwordVerifierId} ${passwordId}-error`}
-							/>
-						</FieldRow>
-						{errors?.password && (
-							<FieldError aria-live='assertive' id={`${passwordId}-error`}>
-								{errors.password.message}
-							</FieldError>
-						)}
-						<PasswordVerifier password={password} id={passwordVerifierId} />
-					</Field>
-					{requiresPasswordConfirmation && (
-						<Field>
-							<FieldLabel required htmlFor={passwordConfirmationId}>
-								{t('registration.component.form.confirmPassword')}
-							</FieldLabel>
-							<FieldRow>
-								<PasswordInput
-									{...register('passwordConfirmation', {
-										required: t('registration.component.form.requiredField'),
-										deps: ['password'],
-										validate: (val: string) => (watch('password') === val ? true : t('registration.component.form.invalidConfirmPass')),
-									})}
-									error={errors.passwordConfirmation?.message}
-									aria-required='true'
-									aria-invalid={errors.passwordConfirmation ? 'true' : 'false'}
-									id={passwordConfirmationId}
-									aria-describedby={`${passwordConfirmationId}-error`}
-									placeholder={passwordConfirmationPlaceholder || t('Confirm_password')}
-									disabled={!passwordIsValid}
-								/>
-							</FieldRow>
-							{errors.passwordConfirmation && (
-								<FieldError aria-live='assertive' id={`${passwordConfirmationId}-error`}>
-									{errors.passwordConfirmation.message}
-								</FieldError>
-							)}
-						</Field>
-					)}
 					{manuallyApproveNewUsersRequired && (
 						<Field>
 							<FieldLabel required htmlFor={reasonId}>

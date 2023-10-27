@@ -54,5 +54,8 @@
 		"react": "*",
 		"react-hook-form": "*",
 		"react-i18next": "*"
+	},
+	"dependencies": {
+		"@passwordlessdev/passwordless-client": "^1.1.2"
 	}
 }

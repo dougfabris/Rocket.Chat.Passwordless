@@ -5024,6 +5024,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@passwordlessdev/passwordless-client@npm:^1.1.2":
+  version: 1.1.2
+  resolution: "@passwordlessdev/passwordless-client@npm:1.1.2"
+  checksum: 3b2d292979c3ec547b0241cb86c98b1ad2d54db632f4b1e1da75237cdd400c95417fbd1142f98731bf71ad74a1bd395b2a7094ae8437df239a3d78b4654e010d
+  languageName: node
+  linkType: hard
+
 "@passwordlessdev/passwordless-nodejs@npm:^0.2.0":
   version: 0.2.0
   resolution: "@passwordlessdev/passwordless-nodejs@npm:0.2.0"
@@ -8649,6 +8656,7 @@ __metadata:
     "@nivo/heatmap": 0.80.0
     "@nivo/line": 0.80.0
     "@nivo/pie": 0.80.0
+    "@passwordlessdev/passwordless-client": ^1.1.2
     "@passwordlessdev/passwordless-nodejs": ^0.2.0
     "@playwright/test": ^1.37.1
     "@react-aria/color": ^3.0.0-beta.15
@@ -9781,6 +9789,7 @@ __metadata:
     "@babel/preset-env": ~7.22.10
     "@babel/preset-react": ~7.22.5
     "@babel/preset-typescript": ~7.22.5
+    "@passwordlessdev/passwordless-client": ^1.1.2
     "@rocket.chat/i18n": "workspace:~"
     "@rocket.chat/layout": next
     "@rocket.chat/mock-providers": "workspace:~"
