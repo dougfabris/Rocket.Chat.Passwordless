@@ -56,7 +56,7 @@ export type UserContextValue = {
 		query: SubscriptionQuery,
 		options?: FindOptions,
 	) => [subscribe: (onStoreChange: () => void) => () => void, getSnapshot: () => SubscriptionWithRoom[]];
-
+	loginWithPasswordlessDev: (token: string, callback?: () => void) => Promise<void>;
 	loginWithPassword: (user: string | { username: string } | { email: string } | { id: string }, password: string) => Promise<void>;
 	loginWithToken: (user: string) => Promise<void>;
 	logout: () => Promise<void>;
@@ -75,6 +75,7 @@ export const UserContext = createContext<UserContextValue>({
 
 	queryAllServices: () => [() => (): void => undefined, (): LoginService[] => []],
 	loginWithService: () => () => Promise.reject('loginWithService not implemented'),
+	loginWithPasswordlessDev: () => Promise.reject('loginWithPasswordlessDev not implemented'),
 	loginWithPassword: async () => Promise.reject('loginWithPassword not implemented'),
 	loginWithToken: async () => Promise.reject('loginWithToken not implemented'),
 	logout: () => Promise.resolve(),

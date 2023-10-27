@@ -1,11 +1,11 @@
-// import * as Passwordless from '@passwordlessdev/passwordless-client';
+import * as Passwordless from '@passwordlessdev/passwordless-client';
 import { FieldGroup, ButtonGroup, Button, Callout } from '@rocket.chat/fuselage';
 import { useUniqueId } from '@rocket.chat/fuselage-hooks';
 import { Form, ActionLink } from '@rocket.chat/layout';
-import { useLoginWithPassword, useSetting } from '@rocket.chat/ui-contexts';
+import { UserContext, useLoginWithPassword, useSetting } from '@rocket.chat/ui-contexts';
 import { useMutation } from '@tanstack/react-query';
 import type { ReactElement } from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
@@ -46,13 +46,9 @@ const LOGIN_SUBMIT_ERRORS = {
 
 export type LoginErrors = keyof typeof LOGIN_SUBMIT_ERRORS;
 
-// const PASSWORDLESS_API_URL = 'https://v4.passwordless.dev';
-// const PASSWORDLESS_API_KEY = 'rocketchatpasswordless:public:f489302659c444ab8fdb0d10cd072bf2';
-
-// const passwordless = new Passwordless.Client({
-// 	apiUrl: PASSWORDLESS_API_URL,
-// 	apiKey: PASSWORDLESS_API_KEY,
-// });
+export const useLoginPasswordless = (): ((token: string) => Promise<void>) => {
+	return useContext(UserContext).loginWithPasswordlessDev;
+};
 
 export const PasswordlessForm = ({ setLoginRoute }: { setLoginRoute: DispatchLoginRouter }): ReactElement => {
 	const {
@@ -71,6 +67,7 @@ export const PasswordlessForm = ({ setLoginRoute }: { setLoginRoute: DispatchLog
 	// const isResetPasswordAllowed = useSetting('Accounts_PasswordReset');
 	const login = useLoginWithPassword();
 	const showFormLogin = useSetting('Accounts_ShowFormLogin');
+	const loginPasswordLess = useLoginPasswordless();
 
 	// const usernameOrEmailPlaceholder = String(useSetting('Accounts_EmailOrUsernamePlaceholder'));
 	// const passwordPlaceholder = String(useSetting('Accounts_PasswordPlaceholder'));
@@ -97,12 +94,6 @@ export const PasswordlessForm = ({ setLoginRoute }: { setLoginRoute: DispatchLog
 	const loginFormRef = useRef<HTMLElement>(null);
 
 	useEffect(() => {
-		// First we obtain our token
-		// const token = await passwordless.signinWithDiscoverable();
-		// if (!token) {
-		// 	return;
-		// }
-
 		if (loginFormRef.current) {
 			loginFormRef.current.focus();
 		}
@@ -121,13 +112,43 @@ export const PasswordlessForm = ({ setLoginRoute }: { setLoginRoute: DispatchLog
 		return <EmailConfirmationForm onBackToLogin={() => clearErrors('username')} email={getValues('username')} />;
 	}
 
+	const PASSWORDLESS_API_URL = 'https://v4.passwordless.dev';
+	const PASSWORDLESS_API_KEY = 'rocketchatpasswordless:public:f489302659c444ab8fdb0d10cd072bf2';
+
+	const handleLogin = async () => {
+		// In case of self-hosting PASSWORDLESS_API_URL will be different than https://v4.passwordless.dev
+		const passwordless = new Passwordless.Client({
+			apiUrl: PASSWORDLESS_API_URL,
+			apiKey: PASSWORDLESS_API_KEY,
+		});
+		// const yourBackendClient = new YourBackendClient();
+
+		// First we obtain our token
+		const token = await passwordless.signinWithDiscoverable();
+		if (!token.token) {
+			return;
+		}
+
+		// Then you verify on your backend the validity of the token.
+		const verifiedToken = await loginPasswordLess(token.token);
+		console.log(verifiedToken);
+		// const verifiedToken = await yourBackendClient.signIn(token.token);
+
+		// Your backend could return a JWT token for example if your token is deemed to be valid.
+		// localStorage.setItem('jwt', verifiedToken.jwt);
+
+		// We are good to proceed.
+		// setAuth({ verifiedToken });
+		// setSuccess(true);
+	};
+
 	return (
 		<Form
 			tabIndex={-1}
 			ref={loginFormRef}
 			aria-labelledby={formLabelId}
 			aria-describedby='welcomeTitle'
-			onSubmit={handleSubmit(async (data) => loginMutation.mutate(data))}
+			onSubmit={handleSubmit(handleLogin)}
 		>
 			<Form.Header>
 				<Form.Title id={formLabelId}>{t('registration.component.login')}</Form.Title>
@@ -136,7 +157,9 @@ export const PasswordlessForm = ({ setLoginRoute }: { setLoginRoute: DispatchLog
 				<>
 					<Form.Container>
 						<ButtonGroup large vertical stretch>
-							<Button primary>Login without password</Button>
+							<Button primary onClick={() => handleLogin()}>
+								Login without password
+							</Button>
 							<Button onClick={() => setLoginRoute('register')}>Create an accouunt</Button>
 						</ButtonGroup>
 						{errorOnSubmit && <FieldGroup disabled={loginMutation.isLoading}>{renderErrorOnSubmit(errorOnSubmit)}</FieldGroup>}
