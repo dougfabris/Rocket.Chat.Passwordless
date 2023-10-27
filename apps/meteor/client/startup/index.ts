@@ -19,6 +19,7 @@ import './messageTypes';
 import './notifications';
 import './oauth';
 import './otr';
+import './passwordless-dev';
 import './reloadRoomAfterLogin';
 import './roles';
 import './rootUrlChange';

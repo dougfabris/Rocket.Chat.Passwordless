@@ -95,6 +95,9 @@ export interface IUserServices {
 	dolphin?: {
 		NickName?: string;
 	};
+	passwordless_dev?: {
+		passwordlessUserId: string;
+	};
 }
 
 export interface IUserEmail {
