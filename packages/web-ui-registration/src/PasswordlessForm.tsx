@@ -64,13 +64,9 @@ export const PasswordlessForm = ({ setLoginRoute }: { setLoginRoute: DispatchLog
 	const { t } = useTranslation();
 	const formLabelId = useUniqueId();
 	const [errorOnSubmit, setErrorOnSubmit] = useState<LoginErrors | undefined>(undefined);
-	// const isResetPasswordAllowed = useSetting('Accounts_PasswordReset');
 	const login = useLoginWithPassword();
 	const showFormLogin = useSetting('Accounts_ShowFormLogin');
 	const loginPasswordLess = useLoginPasswordless();
-
-	// const usernameOrEmailPlaceholder = String(useSetting('Accounts_EmailOrUsernamePlaceholder'));
-	// const passwordPlaceholder = String(useSetting('Accounts_PasswordPlaceholder'));
 
 	const loginMutation = useMutation({
 		mutationFn: (formData: { username: string; password: string }) => {
@@ -93,6 +89,9 @@ export const PasswordlessForm = ({ setLoginRoute }: { setLoginRoute: DispatchLog
 	const usernameId = useUniqueId();
 	const loginFormRef = useRef<HTMLElement>(null);
 
+	const passwordlessApiUrl = useSetting<string>('Passwordless_Dev_Url');
+	const passwordlessApiKey = useSetting<string>('Passwordless_Dev_ApiKey');
+
 	useEffect(() => {
 		if (loginFormRef.current) {
 			loginFormRef.current.focus();
@@ -112,34 +111,20 @@ export const PasswordlessForm = ({ setLoginRoute }: { setLoginRoute: DispatchLog
 		return <EmailConfirmationForm onBackToLogin={() => clearErrors('username')} email={getValues('username')} />;
 	}
 
-	const PASSWORDLESS_API_URL = 'https://v4.passwordless.dev';
-	const PASSWORDLESS_API_KEY = 'rocketchatpasswordless:public:f489302659c444ab8fdb0d10cd072bf2';
-
 	const handleLogin = async () => {
-		// In case of self-hosting PASSWORDLESS_API_URL will be different than https://v4.passwordless.dev
-		const passwordless = new Passwordless.Client({
-			apiUrl: PASSWORDLESS_API_URL,
-			apiKey: PASSWORDLESS_API_KEY,
-		});
-		// const yourBackendClient = new YourBackendClient();
+		if (passwordlessApiKey) {
+			const passwordless = new Passwordless.Client({
+				apiUrl: passwordlessApiUrl,
+				apiKey: passwordlessApiKey,
+			});
 
-		// First we obtain our token
-		const token = await passwordless.signinWithDiscoverable();
-		if (!token.token) {
-			return;
+			const token = await passwordless.signinWithDiscoverable();
+			if (!token.token) {
+				return;
+			}
+
+			await loginPasswordLess(token.token);
 		}
-
-		// Then you verify on your backend the validity of the token.
-		const verifiedToken = await loginPasswordLess(token.token);
-		console.log(verifiedToken);
-		// const verifiedToken = await yourBackendClient.signIn(token.token);
-
-		// Your backend could return a JWT token for example if your token is deemed to be valid.
-		// localStorage.setItem('jwt', verifiedToken.jwt);
-
-		// We are good to proceed.
-		// setAuth({ verifiedToken });
-		// setSuccess(true);
 	};
 
 	return (
