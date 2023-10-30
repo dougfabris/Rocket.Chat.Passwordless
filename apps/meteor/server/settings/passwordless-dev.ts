@@ -4,6 +4,7 @@ export const createPasswordlessSettings = () =>
 	settingsRegistry.addGroup('Passwordless_Dev', async function () {
 		await this.add('Passwordless_Dev_Enable', false, {
 			type: 'boolean',
+			public: true,
 		});
 
 		const enableQuery = {
