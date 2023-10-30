@@ -15,12 +15,11 @@ import type {
 import type { Logger } from '@rocket.chat/logger';
 import { ImportData, Rooms, Users, Subscriptions } from '@rocket.chat/models';
 import { Random } from '@rocket.chat/random';
-import { SHA256 } from '@rocket.chat/sha256';
-import { hash as bcryptHash } from 'bcrypt';
 import { Accounts } from 'meteor/accounts-base';
 import { ObjectId } from 'mongodb';
 
 import { callbacks } from '../../../../lib/callbacks';
+import { buildNewUserObject } from '../../../../server/lib/buildNewUserObject';
 import { createDirectMessage } from '../../../../server/methods/createDirectMessage';
 import { saveRoomSettings } from '../../../channel-settings/server/methods/saveRoomSettings';
 import { addUserToDefaultChannels } from '../../../lib/server/functions/addUserToDefaultChannels';
@@ -305,40 +304,8 @@ export class ImportDataConverter {
 		}
 	}
 
-	private async hashPassword(password: string): Promise<string> {
-		return bcryptHash(SHA256(password), Accounts._bcryptRounds());
-	}
-
-	private generateTempPassword(userData: IImportUser): string {
-		return `${Date.now()}${userData.name || ''}${userData.emails.length ? userData.emails[0].toUpperCase() : ''}`;
-	}
-
 	private async buildNewUserObject(userData: IImportUser): Promise<Partial<IUser>> {
-		return {
-			type: userData.type || 'user',
-			...(userData.username && { username: userData.username }),
-			...(userData.emails.length && {
-				emails: userData.emails.map((email) => ({ address: email, verified: !!this._options.flagEmailsAsVerified })),
-			}),
-			...(userData.statusText && { statusText: userData.statusText }),
-			...(userData.name && { name: userData.name }),
-			...(userData.bio && { bio: userData.bio }),
-			...(userData.avatarUrl && { _pendingAvatarUrl: userData.avatarUrl }),
-			...(userData.utcOffset !== undefined && { utcOffset: userData.utcOffset }),
-			...{
-				services: {
-					// Add a password service if there's a password string, or if there's no service at all
-					...((!!userData.password || !userData.services || !Object.keys(userData.services).length) && {
-						password: { bcrypt: await this.hashPassword(userData.password || this.generateTempPassword(userData)) },
-					}),
-					...(userData.services || {}),
-				},
-			},
-			...(userData.services?.ldap && { ldap: true }),
-			...(userData.importIds?.length && { importIds: userData.importIds }),
-			...(!!userData.customFields && { customFields: userData.customFields }),
-			...(userData.deleted !== undefined && { active: !userData.deleted }),
-		};
+		return buildNewUserObject(userData, { flagEmailsAsVerified: this._options.flagEmailsAsVerified });
 	}
 
 	private async buildUserBatch(usersData: IImportUser[]): Promise<IUser[]> {

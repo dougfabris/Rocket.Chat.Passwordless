@@ -1,6 +1,7 @@
+import { PasswordlessClient, RegisterOptions, type PasswordlessOptions } from '@passwordlessdev/passwordless-nodejs';
 import { Team, api } from '@rocket.chat/core-services';
 import type { IExportOperation, ILoginToken, IPersonalAccessToken, IUser, UserStatus } from '@rocket.chat/core-typings';
-import { Users, Subscriptions } from '@rocket.chat/models';
+import { PendingUsers, Users, Subscriptions } from '@rocket.chat/models';
 import {
 	isUserCreateParamsPOST,
 	isUserSetActiveStatusParamsPOST,
@@ -16,6 +17,7 @@ import {
 	isUsersSetPreferencesParamsPOST,
 	isUsersCheckUsernameAvailabilityParamsGET,
 	isUsersSendConfirmationEmailParamsPOST,
+	isUserRegisterPasswordlessDevParamsPOST,
 } from '@rocket.chat/rest-typings';
 import { Accounts } from 'meteor/accounts-base';
 import { Match, check } from 'meteor/check';
@@ -602,6 +604,72 @@ API.v1.addRoute(
 
 			if (this.bodyParams.customFields) {
 				await saveCustomFields(userId, this.bodyParams.customFields);
+			}
+
+			return API.v1.success({ user });
+		},
+	},
+);
+
+API.v1.addRoute(
+	'users.registerPasswordless',
+	{
+		authRequired: false,
+		rateLimiterOptions: {
+			numRequestsAllowed: settings.get('Rate_Limiter_Limit_RegisterUser') ?? 1,
+			intervalTimeInMS: settings.get('API_Enable_Rate_Limiter_Limit_Time_Default'),
+		},
+		validateParams: isUserRegisterPasswordlessDevParamsPOST,
+	},
+	{
+		async post() {
+			if (this.userId) {
+				return API.v1.failure('Logged in users can not register again.');
+			}
+
+			const { username, name, email } = this.bodyParams;
+
+			if (!(await checkUsernameAvailability(username))) {
+				return API.v1.failure('Username is already in use');
+			}
+
+			const id = (
+				await PendingUsers.insertOne({
+					username,
+					email,
+					name,
+				})
+			).insertedId;
+
+			const options: PasswordlessOptions = {
+				baseUrl: settings.get<string>('Passwordless_Dev_Url'),
+			};
+			const passwordlessClient = new PasswordlessClient(settings.get<string>('Passwordless_Dev_ApiSecret'), options);
+
+			const registerOptions = new RegisterOptions();
+			registerOptions.userId = id;
+			registerOptions.username = username;
+			registerOptions.discoverable = true;
+
+			const { token } = await passwordlessClient.createRegisterToken(registerOptions);
+			if (!token) {
+				return API.v1.failure('Failed to create register token');
+			}
+
+			await PendingUsers.update(
+				{
+					_id: id,
+				},
+				{
+					$set: {
+						token,
+					},
+				},
+			);
+
+			const user = await PendingUsers.findOneById(id);
+			if (!user) {
+				return API.v1.failure('Failed to create user');
 			}
 
 			return API.v1.success({ user });

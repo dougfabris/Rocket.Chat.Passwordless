@@ -2,6 +2,7 @@ import type { ReactElement, ReactNode } from 'react';
 
 import GuestForm from './GuestForm';
 import { LoginForm } from './LoginForm';
+import PasswordlessForm from './PasswordlessForm';
 import RegisterSecretPageRouter from './RegisterSecretPageRouter';
 import RegisterTemplate from './RegisterTemplate';
 import ResetPasswordForm from './ResetPasswordForm';
@@ -9,7 +10,7 @@ import { useLoginRouter } from './hooks/useLoginRouter';
 import type { LoginRoutes } from './hooks/useLoginRouter';
 
 export const RegistrationPageRouter = ({
-	defaultRoute = 'login',
+	defaultRoute = 'passwordless',
 	children,
 }: {
 	defaultRoute?: LoginRoutes;
@@ -21,6 +22,14 @@ export const RegistrationPageRouter = ({
 		return (
 			<RegisterTemplate>
 				<GuestForm setLoginRoute={setLoginRoute} />
+			</RegisterTemplate>
+		);
+	}
+
+	if (route === 'passwordless') {
+		return (
+			<RegisterTemplate>
+				<PasswordlessForm setLoginRoute={setLoginRoute} />
 			</RegisterTemplate>
 		);
 	}

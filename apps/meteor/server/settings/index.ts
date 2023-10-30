@@ -24,6 +24,7 @@ import { createMobileSettings } from './mobile';
 import { createOauthSettings } from './oauth';
 import { createOmniSettings } from './omnichannel';
 import { createOTRSettings } from './otr';
+import { createPasswordlessSettings } from './passwordless-dev';
 import { createPushSettings } from './push';
 import { createRateLimitSettings } from './rate';
 import { createRetentionSettings } from './retention-policy';
@@ -77,6 +78,7 @@ async function createSettings() {
 		createUserDataSettings(),
 		createWebDavSettings(),
 		createWebRTCSettings(),
+		createPasswordlessSettings(),
 	]);
 }
 

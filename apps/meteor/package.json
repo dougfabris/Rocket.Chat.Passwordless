@@ -220,6 +220,8 @@
 		"@nivo/heatmap": "0.80.0",
 		"@nivo/line": "0.80.0",
 		"@nivo/pie": "0.80.0",
+		"@passwordlessdev/passwordless-client": "^1.1.2",
+		"@passwordlessdev/passwordless-nodejs": "^0.2.0",
 		"@react-aria/color": "^3.0.0-beta.15",
 		"@react-pdf/renderer": "^3.1.12",
 		"@rocket.chat/account-utils": "workspace:^",

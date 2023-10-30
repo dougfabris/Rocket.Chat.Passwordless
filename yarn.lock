@@ -5024,6 +5024,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@passwordlessdev/passwordless-client@npm:^1.1.2":
+  version: 1.1.2
+  resolution: "@passwordlessdev/passwordless-client@npm:1.1.2"
+  checksum: 3b2d292979c3ec547b0241cb86c98b1ad2d54db632f4b1e1da75237cdd400c95417fbd1142f98731bf71ad74a1bd395b2a7094ae8437df239a3d78b4654e010d
+  languageName: node
+  linkType: hard
+
+"@passwordlessdev/passwordless-nodejs@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "@passwordlessdev/passwordless-nodejs@npm:0.2.0"
+  dependencies:
+    axios: ^1.4.0
+  checksum: 1d5cb47598be6a51e684e36ad2552f393abaab37d1cabab3dd272218fc780eca438f562ed715578e73620f5f1a8ed9f616c6cd90ef754f88a5a41306497fdaef
+  languageName: node
+  linkType: hard
+
 "@playwright/test@npm:^1.37.1":
   version: 1.37.1
   resolution: "@playwright/test@npm:1.37.1"
@@ -8640,6 +8656,8 @@ __metadata:
     "@nivo/heatmap": 0.80.0
     "@nivo/line": 0.80.0
     "@nivo/pie": 0.80.0
+    "@passwordlessdev/passwordless-client": ^1.1.2
+    "@passwordlessdev/passwordless-nodejs": ^0.2.0
     "@playwright/test": ^1.37.1
     "@react-aria/color": ^3.0.0-beta.15
     "@react-pdf/renderer": ^3.1.12
@@ -9771,6 +9789,7 @@ __metadata:
     "@babel/preset-env": ~7.22.10
     "@babel/preset-react": ~7.22.5
     "@babel/preset-typescript": ~7.22.5
+    "@passwordlessdev/passwordless-client": ^1.1.2
     "@rocket.chat/i18n": "workspace:~"
     "@rocket.chat/layout": next
     "@rocket.chat/mock-providers": "workspace:~"
@@ -15198,6 +15217,17 @@ __metadata:
     follow-redirects: ^1.14.9
     form-data: ^4.0.0
   checksum: 38cb7540465fe8c4102850c4368053c21683af85c5fdf0ea619f9628abbcb59415d1e22ebc8a6390d2bbc9b58a9806c874f139767389c862ec9b772235f06854
+  languageName: node
+  linkType: hard
+
+"axios@npm:^1.4.0":
+  version: 1.5.1
+  resolution: "axios@npm:1.5.1"
+  dependencies:
+    follow-redirects: ^1.15.0
+    form-data: ^4.0.0
+    proxy-from-env: ^1.1.0
+  checksum: 4444f06601f4ede154183767863d2b8e472b4a6bfc5253597ed6d21899887e1fd0ee2b3de792ac4f8459fe2e359d2aa07c216e45fd8b9e4e0688a6ebf48a5a8d
   languageName: node
   linkType: hard
 
@@ -21773,6 +21803,16 @@ __metadata:
     debug:
       optional: true
   checksum: faa66059b66358ba65c234c2f2a37fcec029dc22775f35d9ad6abac56003268baf41e55f9ee645957b32c7d9f62baf1f0b906e68267276f54ec4b4c597c2b190
+  languageName: node
+  linkType: hard
+
+"follow-redirects@npm:^1.15.0":
+  version: 1.15.3
+  resolution: "follow-redirects@npm:1.15.3"
+  peerDependenciesMeta:
+    debug:
+      optional: true
+  checksum: 584da22ec5420c837bd096559ebfb8fe69d82512d5585004e36a3b4a6ef6d5905780e0c74508c7b72f907d1fa2b7bd339e613859e9c304d0dc96af2027fd0231
   languageName: node
   linkType: hard
 
