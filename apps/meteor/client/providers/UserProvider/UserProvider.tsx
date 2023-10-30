@@ -73,7 +73,8 @@ const UserProvider = ({ children }: UserProviderProps): ReactElement => {
 	const createFontStyleElement = useCreateFontStyleElement();
 	createFontStyleElement(user?.settings?.preferences?.fontSize);
 
-	const loginMethod: LoginMethods = (isLdapEnabled && 'loginWithLDAP') || (isCrowdEnabled && 'loginWithCrowd') || 'loginWithPassword';
+	const loginMethod: LoginMethods =
+		(isLdapEnabled && 'loginWithLDAP') || (isCrowdEnabled && 'loginWithCrowd') || 'loginWithPassword' || 'loginWithP';
 
 	useLDAPAndCrowdCollisionWarning();
 	useEmailVerificationWarning(user ?? undefined);
@@ -103,6 +104,16 @@ const UserProvider = ({ children }: UserProviderProps): ReactElement => {
 							return reject(err);
 						}
 						resolve(undefined);
+					}),
+				),
+			loginWithPasswordlessDev: (token: string, _callback: () => void): Promise<void> =>
+				new Promise((resolve, reject) =>
+					Meteor.loginWithPasswordlessDev(token, (err) => {
+						console.log(err);
+						if (err) {
+							return reject(err);
+						}
+						resolve();
 					}),
 				),
 			loginWithPassword: (user: string | { username: string } | { email: string } | { id: string }, password: string): Promise<void> =>

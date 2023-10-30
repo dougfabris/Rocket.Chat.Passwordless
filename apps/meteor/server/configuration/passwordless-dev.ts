@@ -7,22 +7,32 @@ import { settings } from '../../app/settings/server';
 import { buildNewUserObject } from '../lib/buildNewUserObject';
 
 Accounts.registerLoginHandler('passwordless-dev', async (options: Record<string, any>) => {
-	if (!options.passwordlessDev || !settings.get<boolean>('Passwordless_dev')) {
+	if (!options.passwordlessDev) {
 		return;
+	}
+
+	if (!settings.get<boolean>('Passwordless_Dev_Enable')) {
+		return {
+			type: 'passwordless-dev',
+			error: new Meteor.Error(Accounts.LoginCancelledError.numericError, 'Passwordless.dev is disabled.'),
+		};
 	}
 
 	const { token } = options;
 	const apiUrl = settings.get<string>('Passwordless_Dev_Url');
 
 	if (!apiUrl) {
-		return;
+		return {
+			type: 'passwordless-dev',
+			error: new Meteor.Error(Accounts.LoginCancelledError.numericError, 'Passwordless.dev is not configured.'),
+		};
 	}
 
 	if (!token || typeof token !== 'string') {
 		return {
 			type: 'passwordless-dev',
 			error: new Meteor.Error(Accounts.LoginCancelledError.numericError, 'Invalid credential token'),
-		}
+		};
 	}
 
 	const clientOptions: PasswordlessOptions = {
@@ -56,7 +66,7 @@ Accounts.registerLoginHandler('passwordless-dev', async (options: Record<string,
 		};
 	}
 
-	const userData = buildNewUserObject({
+	const userData = await buildNewUserObject({
 		type: 'user',
 		username: pendingUser.username,
 		emails: [pendingUser.email],

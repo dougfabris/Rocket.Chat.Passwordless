@@ -25,6 +25,7 @@ const userContextValue: ContextType<typeof UserContext> = {
 
 	queryAllServices: () => [() => (): void => undefined, (): LoginService[] => []],
 	loginWithService: () => () => Promise.reject('loginWithService not implemented'),
+	loginWithPasswordlessDev: () => Promise.reject('loginWithPasswordlessDev not implemented'),
 	loginWithPassword: async () => Promise.reject('loginWithPassword not implemented'),
 	loginWithToken: async () => Promise.reject('loginWithToken not implemented'),
 	logout: () => Promise.resolve(),

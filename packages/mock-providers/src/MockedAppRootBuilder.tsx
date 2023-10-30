@@ -81,6 +81,7 @@ export class MockedAppRootBuilder {
 		loginWithPassword: () => Promise.reject(new Error('not implemented')),
 		logout: () => Promise.reject(new Error('not implemented')),
 		loginWithService: () => () => Promise.reject(new Error('not implemented')),
+		loginWithPasswordlessDev: () => Promise.reject('loginWithPasswordlessDev not implemented'),
 		loginWithToken: () => Promise.reject(new Error('not implemented')),
 		queryAllServices: () => [() => () => undefined, () => []],
 		queryPreference: () => [() => () => undefined, () => undefined],
