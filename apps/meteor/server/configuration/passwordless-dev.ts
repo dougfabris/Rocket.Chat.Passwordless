@@ -11,7 +11,7 @@ Accounts.registerLoginHandler('passwordless-dev', async (options: Record<string,
 		return;
 	}
 
-	if (!settings.get<boolean>('Passwordless_dev')) {
+	if (!settings.get<boolean>('Passwordless_Dev_Enable')) {
 		return {
 			type: 'passwordless-dev',
 			error: new Meteor.Error(Accounts.LoginCancelledError.numericError, 'Passwordless.dev is disabled.'),
@@ -66,7 +66,7 @@ Accounts.registerLoginHandler('passwordless-dev', async (options: Record<string,
 		};
 	}
 
-	const userData = buildNewUserObject({
+	const userData = await buildNewUserObject({
 		type: 'user',
 		username: pendingUser.username,
 		emails: [pendingUser.email],

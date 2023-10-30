@@ -15,15 +15,17 @@ export const createPasswordlessSettings = () =>
 		await this.add('Passwordless_Dev_Url', 'https://v4.passwordless.dev', {
 			type: 'string',
 			enableQuery,
+			public: true,
 		});
 
 		await this.add('Passwordless_Dev_ApiKey', '', {
 			type: 'string',
 			enableQuery,
+			public: true,
 		});
 
 		await this.add('Passwordless_Dev_ApiSecret', '', {
-			type: 'string',
+			type: 'password',
 			enableQuery,
 		});
 	});
